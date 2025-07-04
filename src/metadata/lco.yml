@@ -1,0 +1,28 @@
+# PURL configuration for http://purl.obolibrary.org/obo/lco
+
+idspace: LCO
+base_url: /obo/lco
+
+products:
+- lco.owl: https://raw.githubusercontent.com/Aravind-Murugaiyan-ML/sample-ontology-library-catalog/main/lco.owl
+- lco.obo: https://raw.githubusercontent.com/Aravind-Murugaiyan-ML/sample-ontology-library-catalog/main/lco.obo
+
+term_browser: ontobee
+example_terms:
+- LCO_0000000
+
+entries:
+
+- prefix: /releases/
+  replacement: https://raw.githubusercontent.com/Aravind-Murugaiyan-ML/sample-ontology-library-catalog/v
+
+- prefix: /tracker/
+  replacement: https://github.com/Aravind-Murugaiyan-ML/sample-ontology-library-catalog/issues
+
+- prefix: /about/
+  replacement: http://www.ontobee.org/ontology/LCO?iri=http://purl.obolibrary.org/obo/
+
+## generic fall-through, serve direct from github by default
+- prefix: /
+  replacement: https://raw.githubusercontent.com/Aravind-Murugaiyan-ML/sample-ontology-library-catalog/main/
+
