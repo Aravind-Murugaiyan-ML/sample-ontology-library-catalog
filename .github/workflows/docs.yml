@@ -1,27 +1,60 @@
-# Basic ODK workflow
-name: Docs
-
-# Controls when the action will run. 
+name: docs
 on:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    name: Deploy docs
+  docs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
-        # Or use mhausenblas/mkdocs-deploy-gh-pages@nomaterial to build without the mkdocs-material theme
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CONFIG_FILE: mkdocs.yaml
-
+    - uses: actions/checkout@v3
+    
+    - name: Check documentation requirements
+      id: check_docs
+      run: |
+        docs_ready=true
+        
+        if [ ! -f "mkdocs.yaml" ]; then
+          echo "⚠️ mkdocs.yaml not found"
+          docs_ready=false
+        fi
+        
+        if [ ! -d "docs" ]; then
+          echo "⚠️ docs/ directory not found"
+          docs_ready=false
+        fi
+        
+        if [ "$docs_ready" = true ]; then
+          echo "docs_ready=true" >> $GITHUB_OUTPUT
+          echo "✅ Documentation files found"
+        else
+          echo "docs_ready=false" >> $GITHUB_OUTPUT
+          echo "⚠️ Documentation requirements not met"
+        fi
+    
+    - name: Deploy docs
+      if: steps.check_docs.outputs.docs_ready == 'true'
+      uses: mhausenblas/mkdocs-deploy-gh-pages@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CONFIG_FILE: mkdocs.yaml
+    
+    - name: Documentation setup guide
+      if: steps.check_docs.outputs.docs_ready == 'false'
+      run: |
+        echo "📋 Documentation deployment skipped"
+        echo ""
+        echo "To enable documentation, create these files:"
+        echo "1. mkdocs.yaml (MkDocs configuration)"
+        echo "2. docs/index.md (Main documentation page)"
+        echo ""
+        echo "Example mkdocs.yaml:"
+        echo "---"
+        echo "site_name: Library Catalog Ontology"
+        echo "nav:"
+        echo "  - Home: index.md"
+        echo "theme:"
+        echo "  name: material"
+        echo "---"
